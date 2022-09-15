@@ -140,81 +140,39 @@ void faz_comando1(int numero_de_registros, char* nome_do_arquivo, char* modo){
     binarioNaTela(nome_do_arquivo);
 }
 
-/*void ler_campo(char* campo, int tamanho_do_campo, int* bytes_lidos, FILE* arquivo){
-    
-    fread(campo, sizeof(char)*tamanho_do_campo, 1, arquivo);
-    bytes_lidos = bytes_lidos + tamanho_do_campo;
-
-    printf("%s\n", campo);
-
-}*/
-
-//pega o número de registros de um arquivo
-int pegar_numero_de_registros_do_arquivo(char* nome_do_arquivo){
-    int tamanho_do_arquivo;
-    int numero_de_registros;
-    FILE *arquivo;
- 
-    arquivo = fopen(nome_do_arquivo, "rb");
-    if (arquivo == NULL){
-        return;
-    }
-
-    fseek(arquivo, 0, SEEK_END);
-    tamanho_do_arquivo = ftell(arquivo);
-
-    numero_de_registros = tamanho_do_arquivo/TAMANHO_DO_REGISTRO;
-
-    fclose(arquivo);
- 
-    return numero_de_registros;
-}
-
-void faz_comando2(char* nome_do_arquivo, char*modo, int numero_de_registros){
+void faz_comando2(char* nome_do_arquivo, char* modo){
 
     FILE* arquivo;
-    pessoa humano;
-    int bytes_lidos = 0;
-    int i = 0;
-
     arquivo = abrir_arquivo(nome_do_arquivo, modo);
 
-    while(i < numero_de_registros){
+    pessoa humano;
 
-        while(bytes_lidos < TAMANHO_DO_REGISTRO){
+    while(fread(humano.nome, sizeof(char)*51, 1, arquivo) != 0) {
 
-            fread(humano.nome, sizeof(char)*51, 1, arquivo);
-            bytes_lidos = bytes_lidos + 51;
-            printf("Firstname: %s\n", humano.nome);
+        printf("Firstname: %s\n", humano.nome);
 
-            fread(humano.sobrenome, sizeof(char)*51, 1, arquivo);
-            bytes_lidos = bytes_lidos + 51;
-            printf("Lastname: %s\n", humano.sobrenome);
+        fread(humano.sobrenome, sizeof(char)*51, 1, arquivo);
+        printf("Lastname: %s\n", humano.sobrenome);
 
-            fread(humano.email, sizeof(char)*81, 1, arquivo);
-            bytes_lidos = bytes_lidos + 81;
-            printf("Email: %s\n", humano.email);
+        fread(humano.email, sizeof(char)*81, 1, arquivo);
+        printf("Email: %s\n", humano.email);
 
-            fread(humano.nacionalidade, sizeof(char)*51, 1, arquivo);
-            bytes_lidos = bytes_lidos + 51;
-            printf("Nationality: %s\n", humano.nacionalidade);
+        fread(humano.nacionalidade, sizeof(char)*51, 1, arquivo);
+        printf("Nationality: %s\n", humano.nacionalidade);
 
-            fread(&humano.idade, sizeof(int), 1, arquivo);
-            bytes_lidos = bytes_lidos + 4;
-            printf("Age: %d\n\n", humano.idade);
-        }
-        i++;
-        bytes_lidos = 0;
+        fread(&humano.idade, sizeof(int), 1, arquivo);
+        printf("Age: %d\n\n", humano.idade);
     }
     fclose(arquivo);
 }
 
+
 //realiza o comando 3
-void faz_comando3(char* nome_do_arquivo, char* modo, int numero_de_registros){
+void faz_comando3(char* nome_do_arquivo, char* modo){
 
     FILE* arquivo;
     pessoa humano;
-    int RRN, byte_offset;
+    int RRN, byte_offset, temp;
 
     if(abrir_arquivo(nome_do_arquivo, modo) == 0){
         return;
@@ -224,8 +182,8 @@ void faz_comando3(char* nome_do_arquivo, char* modo, int numero_de_registros){
         arquivo = abrir_arquivo(nome_do_arquivo, modo);
         scanf("%d", &RRN);//pega o RRN
         byte_offset = RRN*TAMANHO_DO_REGISTRO;
-        
-        if(RRN > (numero_de_registros-1)){
+
+        if(fread(temp, sizeof(char), 1, arquivo) == 0){
             printf("Não foi possível ler o arquivo\n");
             return;
         }
@@ -250,13 +208,12 @@ void faz_comando3(char* nome_do_arquivo, char* modo, int numero_de_registros){
 }
 
 
-
 int main(){
 
     char* nome_do_arquivo;
     char* entrada;
     int comando;
-    int numero_de_registros_do_arquivo;
+    //int numero_de_registros_do_arquivo;
     FILE* arquivo;
 
     entrada = malloc(50*sizeof(char));//aloca espaço para entrada e nome do arquivo
@@ -273,13 +230,10 @@ int main(){
         faz_comando1(numero_de_registros, nome_do_arquivo, "wb");
     }
     else if(comando == 2){
-        numero_de_registros_do_arquivo = pegar_numero_de_registros_do_arquivo(nome_do_arquivo);
-        faz_comando2(nome_do_arquivo, "rb", numero_de_registros_do_arquivo);
+        faz_comando2(nome_do_arquivo, "rb")
     }
     else if(comando == 3){
-        numero_de_registros_do_arquivo = pegar_numero_de_registros_do_arquivo(nome_do_arquivo);
-        faz_comando3(nome_do_arquivo, "rb", numero_de_registros_do_arquivo);
-
+        faz_comando3(nome_do_arquivo, "rb");
     }
 
     return 0;
